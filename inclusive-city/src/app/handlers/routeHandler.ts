@@ -30,16 +30,21 @@ export class RouteHandler {
     "побудуй",
   ];
 
+  private static readonly ROUTE_PATTERN = new RegExp(
+  '\\b(маршрут|шлях|прокласти|проклади|побудуй|як (дійти|пройти|доїхати|добратися)|дорога до|провести до|покажи дорогу)\\b',
+  'i'
+);
+
   private static readonly DEFAULT_COORDINATES = {
     lat: 49.84309611110559, // Львів за замовчуванням
     lon: 24.030603315948206,
   };
 
-  static isRouteRequest(userMessage: string): boolean {
-    return this.ROUTE_KEYWORDS.some((keyword) =>
-      userMessage.toLowerCase().includes(keyword.toLowerCase())
-    );
-  }
+  public static isRouteRequest(userMessage: string): boolean {
+  const normalized = userMessage.toLowerCase().replace(/[.,!?;:]/g, '').trim();
+  return this.ROUTE_KEYWORDS.some((keyword) => normalized.includes(keyword)) ||
+         this.ROUTE_PATTERN.test(normalized);
+}
 
   static async processRouteRequest(
     userMessage: string, 

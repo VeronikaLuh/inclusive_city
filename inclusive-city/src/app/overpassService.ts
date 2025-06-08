@@ -113,7 +113,7 @@ export const navigateToMapPage = (places: InclusivePlace[], navigate: (path: str
   console.log(places)
   
   // Перехід на існуючу сторінку карти
-  //window.location.href = '/map'; 
+  window.location.href = '/map'; 
 };
 
 // Функція для збереження координат інклюзивних місць

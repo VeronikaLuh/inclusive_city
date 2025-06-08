@@ -5,6 +5,38 @@ const useSpeechToText = (options: any) => {
     const [transcript, setTranscript] = useState('')
     const recognitionRef = useRef<any>(null)
 
+    // Функція для відтворення звуку
+    const playSound = (frequency: number, duration: number, type: 'start' | 'stop') => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+            const oscillator = audioContext.createOscillator()
+            const gainNode = audioContext.createGain()
+
+            oscillator.connect(gainNode)
+            gainNode.connect(audioContext.destination)
+
+            if (type === 'start') {
+                // Звук включення - зростаючий тон
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime)
+                oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + duration)
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration)
+            } else {
+                // Звук виключення - спадаючий тон
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime)
+                oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, audioContext.currentTime + duration)
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration)
+            }
+
+            oscillator.type = 'sine'
+            oscillator.start(audioContext.currentTime)
+            oscillator.stop(audioContext.currentTime + duration)
+        } catch (error) {
+            console.warn('Не вдалося відтворити звук:', error)
+        }
+    }
+
     useEffect(() => {
       // Перевірка, чи підтримується Web Speech API у браузері
       if (!("webkitSpeechRecognition" in window)) {
@@ -61,6 +93,7 @@ const useSpeechToText = (options: any) => {
     const startListening = () => {
         if (recognitionRef.current && !isListening) {
             recognitionRef.current.start()
+            playSound(800, 0.2, 'start');
             setIsListening(true)
         }
     }
@@ -68,6 +101,7 @@ const useSpeechToText = (options: any) => {
     const stopListening = () => {
       if (recognitionRef.current && isListening) {
         recognitionRef.current.stop();
+        playSound(600, 0.3, 'stop');
         setIsListening(false);
       }
     };

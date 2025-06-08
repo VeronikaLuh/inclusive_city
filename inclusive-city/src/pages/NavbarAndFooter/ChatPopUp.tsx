@@ -217,6 +217,29 @@ function PopupWithTrigger(props: PopupProps & { buttonLabel: string }) {
     }
   };
 
+  const clearChatHistory = () => {
+  // Очищуємо історію чату, залишаючи тільки початкове системне повідомлення
+  const initialHistory = [
+    {
+      hideInChat: true,
+      role: "model",
+      text: InCityInfo,
+    },
+  ];
+  
+  setChatHistory(initialHistory);
+  sessionStorage.setItem("chatHistory", JSON.stringify(initialHistory));
+  
+  // Також очищуємо поточний текст введення
+  setTextInput("");
+  if (inputRef.current) {
+    inputRef.current.value = "";
+  }
+  
+  console.log("Історія чату очищена");
+};
+
+
   const [description, setDescription] = useState("");
   const [rate, setRate] = useState(0);
   
@@ -466,6 +489,8 @@ function PopupWithTrigger(props: PopupProps & { buttonLabel: string }) {
             />
             <h2 style={{ marginLeft: "8px", color: "white" }}>Сітик</h2>
             <DeleteIcon
+            aria-label="Кнопка для очищення історії чату"
+              onClick={clearChatHistory}
             sx={{
                 color: "white",
                 height: "30px",

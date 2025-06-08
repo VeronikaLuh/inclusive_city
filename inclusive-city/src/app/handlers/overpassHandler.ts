@@ -33,6 +33,10 @@ export class OverpassHandler {
         overpassQuery = this.injectCoordinates(overpassQuery, coordinates);
       }
 
+      if( this.needsRadius(overpassQuery)) {
+        overpassQuery = this.injectRadius(overpassQuery);
+      }
+
       console.log("Підготовлений Overpass запит:", overpassQuery);
 
       const inclusivePlaces = await findInclusivePlaces(overpassQuery);
@@ -56,6 +60,18 @@ export class OverpassHandler {
 
   private static needsGeolocation(query: string): boolean {
     return query.includes("LAT") && query.includes("LON");
+  }
+
+  private static needsRadius(query: string): boolean {
+    return query.includes("RADIUS");
+  }
+
+  private static injectRadius(
+    query: string, 
+    radius: number = 1000 // Значення за замовчуванням 1000 метрів
+  ): string {
+    return query
+      .replace(/RADIUS/g, radius.toString());
   }
 
   private static async getCoordinatesForQuery(
